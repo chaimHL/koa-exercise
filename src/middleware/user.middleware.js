@@ -17,7 +17,6 @@ const verifyUser = async (ctx, next) => {
   if (user.length) {
     return ctx.app.emit('error', NAME_IS_EXISTS, ctx)
   }
-
   // 此处需要添加 await，不添加 await 虽然不影响校验，
   // 但会导致没等到下一个中间件的异步函数执行完毕就向客户端返回了 404 Not Found
   await next()
