@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken')
+
 const { PRIVATE_KEY } = require('../config/secret')
 class LoginCcontroller {
   sign(ctx, next) {
@@ -20,9 +21,7 @@ class LoginCcontroller {
   }
 
   test(ctx, next) {
-    const authorization = ctx.headers.authorization
-    const token = authorization.replace('Bearer ', '')
-    ctx.body = 123
+    ctx.body = '验证通过'
   }
 }
 

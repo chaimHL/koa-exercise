@@ -4,7 +4,8 @@ const {
   NAME_OR_PSW_IS_REQUIRED,
   NAME_IS_EXISTS,
   USER_IS_NOT_EXISTS,
-  PASSWORD_IS_ERROR
+  PASSWORD_IS_ERROR,
+  UNAUTHORIZED
 } = require('../config/error.config')
 
 app.on('error', (error, ctx) => {
@@ -26,6 +27,10 @@ app.on('error', (error, ctx) => {
     case PASSWORD_IS_ERROR:
       code = -1004
       msg = '密码不正确'
+      break
+    case UNAUTHORIZED:
+      code = -1005
+      msg = '没有权限'
       break
   }
   ctx.body = {

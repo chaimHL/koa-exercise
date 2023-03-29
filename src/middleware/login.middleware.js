@@ -1,8 +1,11 @@
+const jwt = require('jsonwebtoken')
 const {
   NAME_OR_PSW_IS_REQUIRED,
   USER_IS_NOT_EXISTS,
-  PASSWORD_IS_ERROR
+  PASSWORD_IS_ERROR,
+  UNAUTHORIZED
 } = require('../config/error.config')
+const { PUBLIC_KEY } = require('../config/secret')
 const userService = require('../service/user.service')
 const md5Password = require('../utils/md5-pwd')
 
@@ -31,4 +34,27 @@ const verifyLogin = async (ctx, next) => {
   await next()
 }
 
-module.exports = verifyLogin
+const verifyAuth = async (ctx, next) => {
+  const authorization = ctx.headers.authorization
+  if (authorization) {
+    const token = authorization.replace('Bearer ', '')
+
+    try {
+      const res = jwt.verify(token, PUBLIC_KEY, {
+        algorithms: ['RS256']
+      })
+      // 保存 token 的 payload 信息，也就是用户 id、name 以及令牌颁发和过期时间
+      ctx.user = res
+      await next()
+    } catch (error) {
+      ctx.app.emit('error', UNAUTHORIZED, ctx)
+    }
+  } else {
+    ctx.app.emit('error', UNAUTHORIZED, ctx)
+  }
+}
+
+module.exports = {
+  verifyLogin,
+  verifyAuth
+}
