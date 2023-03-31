@@ -9,6 +9,7 @@ const { PUBLIC_KEY } = require('../config/secret')
 const userService = require('../service/user.service')
 const md5Password = require('../utils/md5-pwd')
 
+// 验证是否可以登录
 const verifyLogin = async (ctx, next) => {
   const { name, password } = ctx.request.body
   // 判断用户名或密码是否为空
@@ -34,11 +35,11 @@ const verifyLogin = async (ctx, next) => {
   await next()
 }
 
+// 验证是否已经登录
 const verifyAuth = async (ctx, next) => {
   const authorization = ctx.headers.authorization
   if (authorization) {
     const token = authorization.replace('Bearer ', '')
-
     try {
       const res = jwt.verify(token, PUBLIC_KEY, {
         algorithms: ['RS256']

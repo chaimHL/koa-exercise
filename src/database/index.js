@@ -25,6 +25,6 @@ pool.getConnection((err, conn) => {
   })
 })
 
-const promisePool = pool.promise()
+const connection = pool.promise()
 
-module.exports = promisePool
+module.exports = connection

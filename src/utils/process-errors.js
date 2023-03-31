@@ -5,7 +5,8 @@ const {
   NAME_IS_EXISTS,
   USER_IS_NOT_EXISTS,
   PASSWORD_IS_ERROR,
-  UNAUTHORIZED
+  UNAUTHORIZED,
+  NO_PERMISSION
 } = require('../config/error.config')
 
 app.on('error', (error, ctx) => {
@@ -31,6 +32,10 @@ app.on('error', (error, ctx) => {
     case UNAUTHORIZED:
       code = -1005
       msg = '没有权限'
+      break
+    case NO_PERMISSION:
+      code = -1006
+      msg = '没有操作权限'
       break
   }
   ctx.body = {
