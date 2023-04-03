@@ -12,8 +12,9 @@ class MomentService {
   async queryList(size = 7, offset = 0) {
     const statement = `
       SELECT 
-      m.id id, m.content content, m.createAt createAt, m.updateAt updateAt, 
-      JSON_OBJECT('id', u.id, 'name', u.name) user 
+        m.id id, m.content content, m.createAt createAt, m.updateAt updateAt, 
+        JSON_OBJECT('id', u.id, 'name', u.name) user,
+        (SELECT COUNT(*) FROM comment WHERE moment_id = m.id) commentCount
       FROM moment m 
       LEFT JOIN users u ON u.id = m.user_id LIMIT ? OFFSET ?;
     `
@@ -25,11 +26,17 @@ class MomentService {
   async queryById(id) {
     const statement = `
       SELECT 
-      m.id id, m.content content, m.createAt createAt, m.updateAt updateAt, 
-      JSON_OBJECT('id', u.id, 'name', u.name) user 
+        m.id id, m.content content, m.createAt createAt, m.updateAt updateAt, 
+        JSON_OBJECT('id', u.id, 'name', u.name) user, 
+        (
+          JSON_ARRAYAGG(JSON_OBJECT('id', c.id, 'content', c.content, 'momentId', c.comment_id, 'createAt', c.createAt,  'user', JSON_OBJECT('id', cu.id, 'name', cu.name)))
+        ) comments
       FROM moment m 
       LEFT JOIN users u ON u.id = m.user_id
-      WHERE m.id = ?;
+      LEFT JOIN comment c ON moment_id = m.id
+      LEFT JOIN users cu ON cu.id = c.user_id
+      WHERE m.id = 2
+      GROUP BY m.id;
     `
     const [res] = await connection.execute(statement, [id])
     return res
