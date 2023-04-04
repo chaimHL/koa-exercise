@@ -1,4 +1,5 @@
 const momentService = require('../service/moment.service')
+const { ADD_LABEL_FAIL } = require('../config/error.config')
 
 class MomentController {
   // 创建动态
@@ -58,6 +59,29 @@ class MomentController {
       code: 0,
       message: '删除成功',
       data: res
+    }
+  }
+
+  // 给动态添加 label（标签）
+  async addLabels(ctx) {
+    const labels = ctx.labels
+    const { momentId } = ctx.params
+    try {
+      for (const label of labels) {
+        // 判断当前 moment 是否已经有了该 label
+        const isExists = await momentService.hasLabel(momentId, label.id)
+        if (!isExists) {
+          // 不存在才添加 label
+          await momentService.addLabel(momentId, label.id)
+        }
+        ctx.body = {
+          code: 0,
+          message: '添加标签成功~'
+        }
+      }
+    } catch (error) {
+      console.log(error)
+      ctx.app.emit('error', ADD_LABEL_FAIL, ctx)
     }
   }
 }

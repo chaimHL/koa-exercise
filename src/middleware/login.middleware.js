@@ -48,6 +48,7 @@ const verifyAuth = async (ctx, next) => {
       ctx.user = res
       await next()
     } catch (error) {
+      console.log(error)
       ctx.app.emit('error', UNAUTHORIZED, ctx)
     }
   } else {

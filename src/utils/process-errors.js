@@ -6,7 +6,8 @@ const {
   USER_IS_NOT_EXISTS,
   PASSWORD_IS_ERROR,
   UNAUTHORIZED,
-  NO_PERMISSION
+  NO_PERMISSION,
+  ADD_LABEL_FAIL
 } = require('../config/error.config')
 
 app.on('error', (error, ctx) => {
@@ -36,6 +37,10 @@ app.on('error', (error, ctx) => {
     case NO_PERMISSION:
       code = -1006
       msg = '没有操作权限'
+      break
+    case ADD_LABEL_FAIL:
+      code = -2001
+      msg = '添加标签失败'
       break
   }
   ctx.body = {
