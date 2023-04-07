@@ -13,8 +13,9 @@ class MomentService {
     const statement = `
       SELECT 
         m.id id, m.content content, m.createAt createAt, m.updateAt updateAt, 
-        JSON_OBJECT('id', u.id, 'name', u.name) user,
-        (SELECT COUNT(*) FROM comment WHERE moment_id = m.id) commentCount
+        JSON_OBJECT('id', u.id, 'name', u.name, 'avatar', u.avatar_url) user,
+        (SELECT COUNT(*) FROM comment WHERE moment_id = m.id) commentCount,
+        (SELECT COUNT(*) FROM moment_label WHERE moment_id = m.id) labelCount
       FROM moment m 
       LEFT JOIN users u ON u.id = m.user_id LIMIT ? OFFSET ?;
     `
@@ -25,17 +26,25 @@ class MomentService {
   // 查询详情
   async queryById(id) {
     const statement = `
-      SELECT 
+        SELECT 
         m.id id, m.content content, m.createAt createAt, m.updateAt updateAt, 
-        JSON_OBJECT('id', u.id, 'name', u.name) user, 
+        JSON_OBJECT('id', u.id, 'name', u.name, 'avatar', u.avatar_url) user, 
         (
-          JSON_ARRAYAGG(JSON_OBJECT('id', c.id, 'content', c.content, 'momentId', c.comment_id, 'createAt', c.createAt,  'user', JSON_OBJECT('id', cu.id, 'name', cu.name)))
-        ) comments
+          SELECT 
+            JSON_ARRAYAGG(JSON_OBJECT('id', c.id, 'content', c.content, 'momentId', c.comment_id, 'createAt', c.createAt,  'user', JSON_OBJECT('id', cu.id, 'name', cu.name, 'avatar', cu.avatar_url)))
+          FROM comment c
+          LEFT JOIN users cu ON cu.id = c.user_id
+          WHERE c.moment_id = m.id
+        ) comments,
+        (
+          JSON_ARRAYAGG(JSON_OBJECT('id', l.id, 'name', l.name))
+        ) labels
       FROM moment m 
       LEFT JOIN users u ON u.id = m.user_id
-      LEFT JOIN comment c ON moment_id = m.id
-      LEFT JOIN users cu ON cu.id = c.user_id
-      WHERE m.id = 2
+      
+      LEFT JOIN moment_label ml ON ml.moment_id = m.id
+      LEFT JOIN label l ON l.id = ml.label_id
+      WHERE m.id = ?
       GROUP BY m.id;
     `
     const [res] = await connection.execute(statement, [id])

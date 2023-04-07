@@ -32,7 +32,7 @@ app.on('error', (error, ctx) => {
       break
     case UNAUTHORIZED:
       code = -1005
-      msg = '没有权限'
+      msg = '未登录，或账户验证出错'
       break
     case NO_PERMISSION:
       code = -1006
